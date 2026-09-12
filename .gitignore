@@ -1,0 +1,15 @@
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment & IDE
+.venv/
+env/
+venv/
+.idea/
+.vscode/
+
+# Application Output
+stamped_exhibits/
+*.pdf
