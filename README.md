@@ -17,6 +17,27 @@ Includes both an intuitive **Desktop GUI** and a feature-rich **Command-Line Int
 
 ---
 
+## File Naming Conventions
+
+The tool automatically extracts the exhibit label from the **beginning of each PDF filename** (matching numbers or letters before spaces, underscores, or hyphens).
+
+### Examples & Expected Outputs:
+
+| Original Filename | Extracted Label | Printed Stamp Text | Generated Output Filename |
+| :--- | :--- | :--- | :--- |
+| `1_Contract.pdf` | `1` | **`EXHIBIT 1`** | `Exhibit_1_1_Contract.pdf` |
+| `101_Deposition_Transcript.pdf` | `101` | **`EXHIBIT 101`** | `Exhibit_101_101_Deposition_Transcript.pdf` |
+| `A_Bank_Statement.pdf` | `A` | **`EXHIBIT A`** | `Exhibit_A_A_Bank_Statement.pdf` |
+| `EXB_Medical_Records.pdf` | `EXB` | **`EXHIBIT EXB`** | `Exhibit_EXB_EXB_Medical_Records.pdf` |
+| `12A_Tax_Return.pdf` | `12A` | **`EXHIBIT 12A`** | `Exhibit_12A_12A_Tax_Return.pdf` |
+
+> [!TIP]
+> - Filenames **must start with alphanumeric characters** (numbers `0-9` or letters `A-Z`).
+> - Files starting with symbols or underscores (e.g., `_notes.pdf` or `.document.pdf`) will be skipped automatically.
+
+---
+
+
 ## Installation
 
 ### 1. Requirements
