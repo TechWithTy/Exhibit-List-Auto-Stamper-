@@ -4,7 +4,7 @@ import subprocess
 import sys
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, colorchooser
-from stamp import stamp_pdfs_in_dir
+from app import stamp_files_in_dir as stamp_pdfs_in_dir
 
 class ExhibitIndexerGUI:
     def __init__(self, root):
@@ -36,14 +36,14 @@ class ExhibitIndexerGUI:
 
         subtitle_label = ttk.Label(
             main_frame,
-            text="Automatically stamp exhibit labels onto numbered/lettered PDF files.",
+            text="Automatically stamp exhibit labels onto numbered/lettered PDFs, Word Docs, Images, and Videos.",
             font=("Segoe UI", 9),
             foreground="#555555"
         )
         subtitle_label.pack(anchor=tk.W, pady=(0, 15))
 
         # 1. Directory Selection Group
-        dir_frame = ttk.LabelFrame(main_frame, text=" Select PDF Directory ", padding="10")
+        dir_frame = ttk.LabelFrame(main_frame, text=" Select Document Directory (PDFs, DOCX, Images, Videos) ", padding="10")
         dir_frame.pack(fill=tk.X, pady=(0, 12))
 
         self.dir_var = tk.StringVar(value=os.getcwd())
