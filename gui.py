@@ -92,32 +92,20 @@ class ExhibitIndexerGUI:
         # Initially hidden unless custom color chosen
         self.toggle_custom_color_widgets(False)
 
-        # Row 2: Options / Checkbox
+        # Row 2: Options / Checkboxes
         self.all_pages_var = tk.BooleanVar(value=False)
-        all_pages_check = ttk.Checkbutton(
-            options_frame,
-            text="Apply stamp to all pages (default: first page only)",
-            variable=self.all_pages_var
-        )
-        all_pages_check.grid(row=2, column=0, columnspan=4, sticky=tk.W, pady=(10, 0))
+        ttk.Checkbutton(options_frame, text="Apply stamp to all pages", variable=self.all_pages_var).grid(row=2, column=0, columnspan=2, sticky=tk.W, pady=(10, 0))
+        self.recursive_var = tk.BooleanVar(value=True)
+        ttk.Checkbutton(options_frame, text="Include nested subfolders", variable=self.recursive_var).grid(row=2, column=2, columnspan=2, sticky=tk.W, pady=(10, 0))
 
         # 3. Execution Control & Progress
         control_frame = ttk.Frame(main_frame)
         control_frame.pack(fill=tk.X, pady=(0, 10))
 
-        self.run_btn = ttk.Button(
-            control_frame,
-            text="⚡ Stamp Exhibits",
-            command=self.start_stamping
-        )
+        self.run_btn = ttk.Button(control_frame, text="⚡ Stamp Exhibits", command=self.start_stamping)
         self.run_btn.pack(side=tk.LEFT, ipadx=10, ipady=4)
 
-        self.open_folder_btn = ttk.Button(
-            control_frame,
-            text="📁 Open Output Folder",
-            command=self.open_output_folder,
-            state=tk.DISABLED
-        )
+        self.open_folder_btn = ttk.Button(control_frame, text="📁 Open Output Folder", command=self.open_output_folder, state=tk.DISABLED)
         self.open_folder_btn.pack(side=tk.RIGHT)
 
         self.last_output_dir = None
@@ -126,17 +114,9 @@ class ExhibitIndexerGUI:
         log_frame = ttk.LabelFrame(main_frame, text=" Activity Log ", padding="8")
         log_frame.pack(fill=tk.BOTH, expand=True)
 
-        self.log_text = tk.Text(
-            log_frame,
-            wrap=tk.WORD,
-            font=("Consolas", 9),
-            bg="#F9F9F9",
-            fg="#222222",
-            height=10
-        )
+        self.log_text = tk.Text(log_frame, wrap=tk.WORD, font=("Consolas", 9), bg="#F9F9F9", fg="#222222", height=10)
         scrollbar = ttk.Scrollbar(log_frame, orient=tk.VERTICAL, command=self.log_text.yview)
         self.log_text.configure(yscrollcommand=scrollbar.set)
-
         self.log_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
@@ -183,36 +163,34 @@ class ExhibitIndexerGUI:
             return
 
         color_choice = self.color_var.get()
-        if color_choice == "custom":
-            color = self.hex_var.get().strip()
-        else:
-            color = color_choice
-
+        color = self.hex_var.get().strip() if color_choice == "custom" else color_choice
         position = self.pos_var.get()
         all_pages = self.all_pages_var.get()
+        recursive = self.recursive_var.get()
 
         self.run_btn.config(state=tk.DISABLED)
         self.open_folder_btn.config(state=tk.DISABLED)
         self.log_text.delete(1.0, tk.END)
         self.log(f"Starting exhibit stamping process...")
         self.log(f"Directory: {target_dir}")
-        self.log(f"Position: {position} | Color: {color} | All Pages: {all_pages}")
+        self.log(f"Position: {position} | Color: {color} | All Pages: {all_pages} | Recursive: {recursive}")
         self.log("-" * 55)
 
         # Run stamping in a separate thread so GUI doesn't freeze
         threading.Thread(
             target=self._run_stamping_thread,
-            args=(target_dir, position, color, all_pages),
+            args=(target_dir, position, color, all_pages, recursive),
             daemon=True
         ).start()
 
-    def _run_stamping_thread(self, target_dir, position, color, all_pages):
+    def _run_stamping_thread(self, target_dir, position, color, all_pages, recursive):
         try:
             count, output_dir = stamp_pdfs_in_dir(
                 input_dir=target_dir,
                 position=position,
                 color=color,
                 all_pages=all_pages,
+                recursive=recursive,
                 log_callback=self.log
             )
             self.last_output_dir = output_dir

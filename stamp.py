@@ -30,6 +30,12 @@ def main():
         help="Directory containing the files to stamp (default: current directory or launch GUI if unspecified)",
     )
     parser.add_argument(
+        "--recursive",
+        "-r",
+        action="store_true",
+        help="Recursively search for files in nested subdirectories",
+    )
+    parser.add_argument(
         "--gui",
         action="store_true",
         help="Launch the graphical user interface",
@@ -47,7 +53,7 @@ def main():
             pass
 
     target_dir = args.dir if args.dir else "."
-    stamp_files_in_dir(target_dir, position=args.position, color=args.color, all_pages=args.all_pages)
+    stamp_files_in_dir(target_dir, position=args.position, color=args.color, all_pages=args.all_pages, recursive=args.recursive)
 
 if __name__ == "__main__":
     main()

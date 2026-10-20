@@ -1,7 +1,13 @@
 import io
 import re
+import logging
+import warnings
 from pypdf import PdfReader
 from reportlab.lib.colors import HexColor
+
+# Silence non-critical pypdf parser warnings
+logging.getLogger("pypdf").setLevel(logging.ERROR)
+warnings.filterwarnings("ignore", module="pypdf")
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
@@ -20,10 +26,53 @@ def normalize_color(color):
     return color_hex
 
 def extract_exhibit_number(filename):
-    """Extracts alphanumeric exhibit identifier at the start of a filename."""
+    """
+    Extracts alphanumeric exhibit identifier at the start of a filename.
+    Supports both:
+      - 'Exhibit_{x}_...' or 'Exhibit_{x}' (e.g., Exhibit_1_Contract.pdf -> '1', Exhibit_A_Notes.pdf -> 'A')
+      - Direct '{x}_...' (e.g., 1_Contract.pdf -> '1', 101_Deposition.pdf -> '101')
+    """
+    # Check for 'Exhibit_{x}_' or 'Exhibit_{x}' convention (case-insensitive)
+    exhibit_match = re.match(r"^exhibit[_\-\s]+([a-zA-Z0-9]+)(?=[_\-\s\.]|$)", filename, re.IGNORECASE)
+    if exhibit_match:
+        return exhibit_match.group(1).upper()
+
+    # Fallback to direct prefix (e.g. 1_..., A_...)
     match = re.match(r"^([a-zA-Z0-9]+)", filename)
     if match:
         return match.group(1).upper()
+    return None
+
+def extract_folder_exhibit_number(folder_path):
+    """
+    Extracts exhibit identifier from a directory path or folder name.
+    Inspects relative path components (from top-level down) for patterns like:
+      - 'Exhibit_25_Tyrique on 08.31.2026' -> '25'
+      - 'Exhibit A - Photos' -> 'A'
+      - 'Exhibit 10' -> '10'
+      - '25_Tyrique' -> '25'
+      - 'A_Financials' -> 'A'
+    """
+    if not folder_path or folder_path == ".":
+        return None
+
+    parts = [p for p in folder_path.replace("\\", "/").split("/") if p and p != "."]
+    for part in parts:
+        # 1. Explicit 'Exhibit_{x}' convention
+        m = re.match(r"^exhibit[_\-\s]+([a-zA-Z0-9]+)(?=[_\-\s\.]|$)", part, re.IGNORECASE)
+        if m:
+            return m.group(1).upper()
+
+        # 2. Leading digits followed by separator (e.g., 25_Tyrique, 25 - Tyrique)
+        m = re.match(r"^(\d+[a-zA-Z]?)(?=[_\-\s]|$)", part)
+        if m:
+            return m.group(1).upper()
+
+        # 3. Leading single/double letter exhibit followed by separator (e.g., A_Financials, BB - Reports)
+        m = re.match(r"^([a-zA-Z]{1,2})(?=[_\-\s])", part)
+        if m:
+            return m.group(1).upper()
+
     return None
 
 def create_exhibit_stamp(exhibit_num, position, color_hex):

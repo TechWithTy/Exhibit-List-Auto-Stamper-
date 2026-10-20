@@ -1,5 +1,11 @@
+import logging
+import warnings
 from pypdf import PdfReader, PdfWriter
 from app.common import create_exhibit_stamp, normalize_color
+
+# Silence non-critical pypdf warnings (e.g. invalid xref pointers common in scanned/court PDFs)
+logging.getLogger("pypdf").setLevel(logging.ERROR)
+warnings.filterwarnings("ignore", module="pypdf")
 
 def process_pdf(filepath, exhibit_num, position="bottom-right", color="black", all_pages=False):
     """

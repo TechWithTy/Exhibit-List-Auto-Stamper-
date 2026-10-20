@@ -23,12 +23,14 @@ Includes both an intuitive **Desktop GUI** and a feature-rich **Command-Line Int
 
 ## File Naming Conventions
 
-The tool automatically extracts the exhibit label from the **beginning of each filename** (matching numbers or letters before spaces, underscores, or hyphens).
+The tool automatically extracts the exhibit label from the **beginning of each filename**. It supports both explicit `Exhibit_{x}_...` prefixes and direct `{x}_...` prefixes (matching numbers or letters before spaces, underscores, or hyphens).
 
 ### Examples & Expected Outputs:
 
 | Original Filename | File Type | Extracted Label | Printed Stamp Text | Generated Output Filename |
 | :--- | :--- | :--- | :--- | :--- |
+| `Exhibit_1_Contract.pdf` | PDF | `1` | **`EXHIBIT 1`** | `Exhibit_1_Contract.pdf` |
+| `Exhibit_B_Bank_Statement.docx` | DOCX | `B` | **`EXHIBIT B`** | `Exhibit_B_Bank_Statement.pdf` |
 | `1_Contract.pdf` | PDF | `1` | **`EXHIBIT 1`** | `Exhibit_1_1_Contract.pdf` |
 | `101_Deposition_Transcript.pdf` | PDF | `101` | **`EXHIBIT 101`** | `Exhibit_101_101_Deposition_Transcript.pdf` |
 | `A_Bank_Statement.docx` | DOCX | `A` | **`EXHIBIT A`** | `Exhibit_A_A_Bank_Statement.pdf` |
@@ -36,7 +38,8 @@ The tool automatically extracts the exhibit label from the **beginning of each f
 | `12A_Tax_Return.pdf` | PDF | `12A` | **`EXHIBIT 12A`** | `Exhibit_12A_12A_Tax_Return.pdf` |
 
 > [!TIP]
-> - Filenames **must start with alphanumeric characters** (numbers `0-9` or letters `A-Z`).
+> - **Folder-Level Exhibit Numbering**: If documents are organized inside exhibit folders (e.g., `Exhibit_25_Tyrique on 08.31.2026/` or `Exhibit_A_Medical/`), all documents inside automatically inherit the folder's exhibit identifier (**`EXHIBIT 25`**, **`EXHIBIT A`**), regardless of individual file names.
+> - Filenames in root folders **can start with `Exhibit_{x}_`** or directly with **alphanumeric characters** (`0-9` or `A-Z`).
 > - Files starting with symbols or underscores (e.g., `_notes.pdf` or `.document.pdf`) will be skipped automatically.
 
 ---
@@ -84,8 +87,11 @@ python stamp.py
 # Specify target directory
 python stamp.py --dir "C:\Users\username\Documents\Exhibits"
 
+# Scan folder including all nested subfolders (recursive)
+python stamp.py --dir "D:\Court Docs\Exhibit List" --recursive
+
 # Customize position, color, and stamp all pages
-python stamp.py --dir "./my_files" --position top-right --color red --all-pages
+python stamp.py --dir "./my_files" --position top-right --color red --all-pages -r
 ```
 
 ---
